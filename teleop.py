@@ -1,4 +1,10 @@
-import sys, select, os
+"""
+It is based on 'turtlebot3_teleop' package
+The difference is action when pressed enter key
+It can save the current odometry and a map
+"""
+
+import sys, select
 import tty, termios
 import rospy
 import os

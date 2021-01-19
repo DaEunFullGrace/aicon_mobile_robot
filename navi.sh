@@ -1,0 +1,2 @@
+python pose_initalization.py
+python navigation.py

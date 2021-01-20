@@ -34,6 +34,7 @@ Failed to communicate
 """
 
 
+# Get Keyboard Input Character
 def get_key():
     tty.setraw(sys.stdin.fileno())
     rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
@@ -50,6 +51,7 @@ def getVelMsg(lin_vel, ang_vel):
     return "current linear velocity : %s, angular velocity : %s" % (lin_vel, ang_vel)
 
 
+# Saturate Input Value
 def constrain(input, max, min):
     if input < min:
         x = min
@@ -71,12 +73,15 @@ def makeSimpleProfile(output, input, slop):
     return output
 
 
+# Subscribe odometry And save current odometry into text file
 class Odom:
     def __init__(self):
         self.sub = rospy.Subscriber('odom', Odometry, self.getOdom)
         self.__cur_odom = {}
         self.__save_dir = os.getcwd() + '/target.txt'
+        self.is_saved = False
 
+    # Subscribe current odometry topic
     def getOdom(self, message):
         self.__cur_odom[0] = message.pose.pose.position.x
         self.__cur_odom[1] = message.pose.pose.position.y
@@ -89,15 +94,18 @@ class Odom:
         for i in range(0, len(self.__cur_odom)):
             self.__cur_odom[i] = round(self.__cur_odom[i], 2)
 
+    # Save list into text file
     def saveFile(self):
         file = open(self.__save_dir, 'w')
 
+        # Data Format : %(data)%(data)%
         file.write("%")
         for i in range(0, len(self.__cur_odom)):
             file.write(str(self.__cur_odom[i]) + "%")
         file.close()
 
         self.printOdom()
+        self.is_saved = True
 
     def printOdom(self):
         if self.__cur_odom is not None:
@@ -133,18 +141,23 @@ if __name__ == "__main__":
             key = get_key()
 
             if key == 'w':
+                # Increase Linear Velocity
                 target_linear_vel = constrain(target_linear_vel + LIN_VEL_STEP_SIZE, MAX_LIN_VEL, -MAX_LIN_VEL)
                 getVelMsg(target_linear_vel, target_angular_vel)
             elif key == 'x':
+                # Decrease Linear Velocity
                 target_linear_vel = constrain(target_linear_vel - LIN_VEL_STEP_SIZE, MAX_LIN_VEL, -MAX_LIN_VEL)
                 getVelMsg(target_linear_vel, target_angular_vel)
             elif key == 'a':
+                # Increase Angular Velocity
                 target_angular_vel = constrain(target_angular_vel + ANG_VEL_STEP_SIZE, MAX_ANG_VEL, -MAX_ANG_VEL)
                 getVelMsg(target_linear_vel, target_angular_vel)
             elif key == 'd':
+                # Decrease Angular Velocity
                 target_angular_vel = constrain(target_angular_vel - ANG_VEL_STEP_SIZE, MAX_ANG_VEL, -MAX_ANG_VEL)
                 getVelMsg(target_linear_vel, target_angular_vel)
             elif key == ' ' or key == 's':
+                # Stop Robot
                 target_linear_vel = 0.0
                 target_angular_vel = 0.0
                 control_linear_vel = 0.0
@@ -152,10 +165,14 @@ if __name__ == "__main__":
                 getVelMsg(target_linear_vel, target_angular_vel)
             else:
                 if key == '\x03':  # ctrl + c
-                    break
+                    if odom.is_saved:
+                        break
+                    else:
+                        print("Save Information using Enter Key")
                 elif key == '\x0d':
+                    # Save Odometry & Map
                     odom.saveFile()
-                    os.system("rosrun map_server map_saver -f " + os.getcwd() + "/map")
+                    os.system("rosrun map_server map_saver -f " + os.getcwd() + "/map")     # Save map
 
             twist = Twist()
 

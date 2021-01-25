@@ -1,5 +1,5 @@
 # Mobile Robot 
-    This package is based on ROS(Robot Operating System)
+    This package is based on ROS and you must install turtlebot3 package to use this
     
   ## src/teleop.py
     It is based on turtlebot3_teleop package of ROS. 

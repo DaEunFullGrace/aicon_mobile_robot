@@ -14,5 +14,5 @@
     And then you can use this file to initialize robot's position in rviz
   
   ## src/navigation.py
-    To move toward saved location, execute this file.
+    To move to saved location, execute this file.
     It can load destination and publish goal position.

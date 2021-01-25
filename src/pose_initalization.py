@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import rospy
 from geometry_msgs.msg import PoseWithCovarianceStamped, PoseArray, Twist
 
@@ -20,6 +22,7 @@ class PoseInitialization:
         size = len(poseArray.poses)
         score = 0.0
 
+        # Get particle cloud
         for i in range(0, size):
             for j in range(i + 1, size):
                 x_i = poseArray.poses[i].position.x
@@ -27,6 +30,8 @@ class PoseInitialization:
                 y_i = poseArray.poses[i].position.y
                 y_j = poseArray.poses[j].position.y
                 score = score + (((x_i - x_j) * (x_i - x_j) + (y_i - y_j) * (y_i - y_j)) ** 2)
+        # Calculate robot's velocity
+        # Before calculated value is converged, robot is rotate
         if MAX_SCORE < score < 2 * MAX_SCORE:
             twist = Twist()
             twist.angular.z = 0.8
@@ -39,6 +44,7 @@ class PoseInitialization:
             self.pub_twist.publish(twist)
 
             rospy.loginfo("on position initializing | MSE : %s > %s" % (score, MAX_SCORE))
+        # After Value is converged and it is lower then MAX_SCORE, stop robot and quit program
         else:
             twist = Twist()
             twist.angular.z = 0.0

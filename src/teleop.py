@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # It is based on 'turtlebot3_teleop' package
 # The difference is action when pressed enter key
 # It can save the current odometry and a map
@@ -9,7 +11,8 @@ import os
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 
-MAX_LIN_VEL = 0.22
+# Static Variables
+MAX_LIN_VEL = 0.5
 MAX_ANG_VEL = 2.84
 
 LIN_VEL_STEP_SIZE = 0.01
@@ -32,7 +35,7 @@ Failed to communicate
 """
 
 
-# Get Keyboard Input Character
+# Get One Input Character via Keyboard
 def get_key():
     tty.setraw(sys.stdin.fileno())
     rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
@@ -71,7 +74,9 @@ def makeSimpleProfile(output, input, slop):
     return output
 
 
+# -------------------------------------------------------------
 # Subscribe odometry And save current odometry into text file
+# -------------------------------------------------------------
 class Odom:
     def __init__(self):
         self.sub = rospy.Subscriber('odom', Odometry, self.getOdom)

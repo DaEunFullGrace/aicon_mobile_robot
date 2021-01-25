@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import time
 import rospy
@@ -13,6 +15,7 @@ class Navigation:
         self.goal = PoseStamped()
         self.navi()
 
+    # Get destination from text file
     def getDestination(self):
         file = open(self.__saved_dir, 'r')
         data = file.read()
@@ -26,6 +29,7 @@ orientation x : %s, y : %s, z : %s, w : %s
         """ % (self.__odom[0], self.__odom[1], self.__odom[2], self.__odom[3],
               self.__odom[4], self.__odom[5], self.__odom[6]))
 
+    # Publish goal position via ros topic
     def navi(self):
         self.goal = PoseStamped()
 
